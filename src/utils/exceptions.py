@@ -32,3 +32,9 @@ class NotFoundException(LemoServiceException):
 
     def __init__(self, message: str, details: Optional[Any] = None):
         super().__init__(message, details, status_code=404)
+
+class BadRequestException(LemoServiceException):
+    """Exception levée lorsqu'une requête est mal formée"""
+
+    def __init__(self, message: str, details: Optional[Any] = None):
+        super().__init__(message, details, status_code=400)

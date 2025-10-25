@@ -9,7 +9,7 @@ from src.schemas.category import (
     CategoryWithChildren,
     CategoryListOut,
 )
-from src.utils.exceptions import NotFoundException
+from src.utils.exceptions import NotFoundException, BadRequestException
 
 
 class CategoryService:
@@ -56,7 +56,7 @@ class CategoryService:
                 )
         existing_category = await self.repo.get_by_name(category_data.name)
         if existing_category:
-            raise ValueError(
+            raise BadRequestException(
                 f"Une catégorie avec le nom '{category_data.name}' existe déjà"
             )
         category = await self.repo.create(category_data.model_dump())
@@ -71,7 +71,7 @@ class CategoryService:
         # Vérifier si le nouveau parent existe
         if "parent_id" in update_data and update_data["parent_id"]:
             if update_data["parent_id"] == category_id:
-                raise ValueError("Une catégorie ne peut pas être son propre parent")
+                raise BadRequestException("Une catégorie ne peut pas être son propre parent")
             parent = await self.repo.get_by_id(update_data["parent_id"])
             if not parent:
                 raise NotFoundException(

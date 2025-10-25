@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.services.brand_service import BrandService, get_brand_service
 from src.schemas.brand import BrandCreate, BrandUpdate, BrandOut, BrandListOut
 from src.middleware.auth_middleware import get_current_admin
-from src.utils.exceptions import NotFoundException
+from src.utils.exceptions import NotFoundException, BadRequestException
 
 router = APIRouter(prefix="/brands", tags=["Brands"])
 
@@ -37,7 +37,7 @@ async def create_brand(
     """Crée une marque (Admin)"""
     try:
         return await brand_service.create_brand(brand)
-    except ValueError as e:
+    except BadRequestException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @router.put("/{brand_id}", response_model=BrandOut)
@@ -52,7 +52,7 @@ async def update_brand(
         return await brand_service.update_brand(brand_id, brand)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except ValueError as e:
+    except BadRequestException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @router.delete("/{brand_id}")

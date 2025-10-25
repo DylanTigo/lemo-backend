@@ -5,7 +5,7 @@ from src.schemas.category import (
     CategoryWithChildren, CategoryListOut
 )
 from src.middleware.auth_middleware import get_current_admin
-from src.utils.exceptions import NotFoundException
+from src.utils.exceptions import NotFoundException, BadRequestException
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
@@ -54,7 +54,7 @@ async def create_category(
         return await category_service.create_category(category)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except ValueError as e:
+    except BadRequestException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @router.put("/{category_id}", response_model=CategoryOut)
@@ -69,7 +69,7 @@ async def update_category(
         return await category_service.update_category(category_id, category)
     except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except ValueError as e:
+    except BadRequestException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @router.delete("/{category_id}")

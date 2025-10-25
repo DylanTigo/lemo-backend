@@ -3,7 +3,7 @@ from fastapi import Depends
 from src.repositories.brand_repo import BrandRepository
 from src.database import Database, get_db
 from src.schemas.brand import BrandCreate, BrandUpdate, BrandOut, BrandListOut
-from src.utils.exceptions import NotFoundException
+from src.utils.exceptions import NotFoundException, BadRequestException
 
 class BrandService:
     def __init__(self, db: Database):
@@ -30,7 +30,7 @@ class BrandService:
         # Vérifier si le nom existe déjà
         existing = await self.repo.get_by_name(brand_data.name)
         if existing:
-            raise ValueError(f"La marque '{brand_data.name}' existe déjà")
+            raise BadRequestException(f"La marque '{brand_data.name}' existe déjà")
         
         brand = await self.repo.create(brand_data.model_dump())
         return BrandOut.model_validate(brand)
@@ -43,7 +43,7 @@ class BrandService:
         if 'name' in update_data:
             existing = await self.repo.get_by_name(update_data['name'])
             if existing and existing.id != brand_id:
-                raise ValueError(f"La marque '{update_data['name']}' existe déjà")
+                raise BadRequestException(f"La marque '{update_data['name']}' existe déjà")
         
         brand = await self.repo.update(brand_id, update_data)
         if not brand:
