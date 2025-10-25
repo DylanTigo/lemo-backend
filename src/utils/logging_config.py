@@ -2,6 +2,7 @@
 import logging
 from typing import List
 
+logger = logging.getLogger(__name__)
 
 class HealthCheckFilter(logging.Filter):
     """Filter out health check requests from access logs."""

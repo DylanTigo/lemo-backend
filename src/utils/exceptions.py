@@ -23,3 +23,6 @@ class LemoServiceException(Exception):
             "status_code": self.status_code,
         }
 
+class UnauthorizedException(Exception):
+    """Exception levée lors d'une erreur d'authentification"""
+    pass

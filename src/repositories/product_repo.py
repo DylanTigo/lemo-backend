@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import EmailStr
 from sqlalchemy.future import select
-from src.repositories.main import BaseRepository
+from src.repositories.base import BaseRepository
 from src.database import Database
 from src.models.products import Product
 
