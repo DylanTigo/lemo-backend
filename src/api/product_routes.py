@@ -1,10 +1,10 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from src.schemas.product import ProductCreate, ProductUpdate, ProductOut, ProductListOut
-from src.services.product_services import get_product_service, ProductService
+from src.services.product_service import get_product_service, ProductService
 from src.database import get_db, Database
 
-router = APIRouter()
+router = APIRouter(prefix="/products", tags=["Products"])
 
 
 @router.get("/", response_model=ProductListOut)

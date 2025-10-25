@@ -14,7 +14,7 @@ from src.models.users import User
 from src.models.products import Product
 from src.models.product_images import ProductImage
 from src.models.orders import Order
-from src.models.cathegories import Category
+from src.models.categories import Category
 from src.models.brands import Brand
 from src.models.attributes import Attribute
 from src.models.associations import order_products, product_attributes
