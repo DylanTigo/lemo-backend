@@ -1,0 +1,9 @@
+# 1. Modifier un model dans src/models/
+# 2. Créer une migration automatique
+alembic revision --autogenerate -m "Description du changement"
+
+# 3. Vérifier le fichier généré dans alembic/versions/
+# 4. Ajuster manuellement si nécessaire
+
+# 5. Appliquer la migration
+alembic upgrade head
