@@ -89,6 +89,9 @@ class Database:
 
         for attempt in range(max_retries):
             try:
+                # Import all models so SQLAlchemy registers tables before create_all
+                # This is intentionally inside the method to avoid import cycles at module import time
+                import src.models  # noqa: F401
                 async with self.engine.begin() as conn:
                     await conn.run_sync(Base.metadata.create_all)
                 logger.info("Database initialized successfully")

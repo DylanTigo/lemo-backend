@@ -12,7 +12,7 @@ order_products = Table(
     ),
     Column(
         "product_id",
-        Integer,
+        String(255),
         ForeignKey("products.id", ondelete="CASCADE"),
         primary_key=True,
     ),
@@ -26,7 +26,7 @@ product_attributes = Table(
     Base.metadata,
     Column(
         "product_id",
-        Integer,
+        String(255),
         ForeignKey("products.id", ondelete="CASCADE"),
         primary_key=True,
     ),
