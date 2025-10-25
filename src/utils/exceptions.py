@@ -26,3 +26,9 @@ class LemoServiceException(Exception):
 class UnauthorizedException(Exception):
     """Exception levée lors d'une erreur d'authentification"""
     pass
+
+class NotFoundException(LemoServiceException):
+    """Exception levée lorsqu'une ressource n'est pas trouvée"""
+
+    def __init__(self, message: str, details: Optional[Any] = None):
+        super().__init__(message, details, status_code=404)
