@@ -47,7 +47,7 @@ async def get_attribute(
 async def create_attribute(
     attribute: AttributeCreate,
     attribute_service: AttributeService = Depends(get_attribute_service),
-    # _current_admin=Depends(get_current_admin),
+    _current_admin=Depends(get_current_admin),
 ):
     """Crée un attribut (Admin)"""
     try:
@@ -62,7 +62,7 @@ async def update_attribute(
     attribute_id: int,
     attribute: AttributeUpdate,
     attribute_service: AttributeService = Depends(get_attribute_service),
-    # _current_admin=Depends(get_current_admin),
+    _current_admin=Depends(get_current_admin),
 ):
     """Met à jour un attribut (Admin)"""
     try:
@@ -76,7 +76,7 @@ async def update_attribute(
 async def delete_attribute(
     attribute_id: int,
     attribute_service: AttributeService = Depends(get_attribute_service),
-    # _current_admin=Depends(get_current_admin),
+    _current_admin=Depends(get_current_admin),
 ):
     """Supprime un attribut (Admin)"""
     try:

@@ -52,7 +52,12 @@ class ProductRepository(BaseRepository):
             
             # Filtre recherche textuelle (sur le nom générique indexé)
             if search:
-                query = query.where(Product.name.ilike(f"%{search}%"))
+                query = query.where(
+                    or_(
+                        Product.name.ilike(f"%{search}%"),
+                        Product.description.ilike(f"%{search}%")
+                    )
+                )
             
             # Filtres
             if category_id:

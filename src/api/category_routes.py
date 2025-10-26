@@ -67,7 +67,7 @@ async def get_category_with_children(
 async def create_category(
     category: CategoryCreate,
     category_service: CategoryService = Depends(get_category_service),
-    # _current_admin = Depends(get_current_admin)
+    _current_admin = Depends(get_current_admin)
 ):
     """Crée une catégorie (Admin)"""
     try:
@@ -82,7 +82,7 @@ async def update_category(
     category_id: int,
     category: CategoryUpdate,
     category_service: CategoryService = Depends(get_category_service),
-    # _current_admin = Depends(get_current_admin)
+    _current_admin = Depends(get_current_admin)
 ):
     """Met à jour une catégorie (Admin)"""
     try:
@@ -96,7 +96,7 @@ async def update_category(
 async def delete_category(
     category_id: int,
     category_service: CategoryService = Depends(get_category_service),
-    # _current_admin = Depends(get_current_admin)
+    _current_admin = Depends(get_current_admin)
 ):
     """Supprime une catégorie (Admin)"""
     try:

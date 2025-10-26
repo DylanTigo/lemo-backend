@@ -38,7 +38,7 @@ async def get_brand(
 async def create_brand(
     brand: BrandCreate,
     brand_service: BrandService = Depends(get_brand_service),
-    # _current_admin = Depends(get_current_admin)
+    _current_admin = Depends(get_current_admin)
 ):
     """Crée une marque (Admin)"""
     try:
@@ -52,7 +52,7 @@ async def update_brand(
     brand_id: int,
     brand: BrandUpdate,
     brand_service: BrandService = Depends(get_brand_service),
-    # _current_admin = Depends(get_current_admin)
+    _current_admin = Depends(get_current_admin)
 ):
     """Met à jour une marque (Admin)"""
     try:
@@ -65,7 +65,7 @@ async def update_brand(
 async def delete_brand(
     brand_id: int,
     brand_service: BrandService = Depends(get_brand_service),
-    # _current_admin = Depends(get_current_admin)
+    _current_admin = Depends(get_current_admin)
 ):
     """Supprime une marque (Admin)"""
     try:
