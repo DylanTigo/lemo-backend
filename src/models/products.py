@@ -1,4 +1,5 @@
 
+from uuid import uuid4
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, func, Table, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 
@@ -8,7 +9,7 @@ from src.models.associations import order_products, product_attributes
 class Product(Base):
     __tablename__ = 'products'
     
-    id = Column(String(255), primary_key=True, index=True)
+    id = Column(String(36), primary_key=True, index=True, default=lambda: str(uuid4()))
     brand_id = Column(Integer, ForeignKey('brands.id', ondelete='SET NULL'), nullable=True)
     category_id = Column(Integer, ForeignKey('categories.id', ondelete='SET NULL'), nullable=True)
     name = Column(String, nullable=False, index=True)
@@ -16,6 +17,7 @@ class Product(Base):
     price = Column(Float, nullable=False)
     condition = Column(Integer, nullable=True, default=0)
     model = Column(String(100), nullable=True)
+    stock_quantity = Column(Integer, nullable=False, default=0)
     state = Column(SQLEnum("new", "used", name="product_state"), nullable=False, default="new")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

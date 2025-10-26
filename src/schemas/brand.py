@@ -15,8 +15,8 @@ class BrandUpdate(BaseModel):
 
 class BrandOut(BrandBase):
     id: int
-    created_at: datetime
-    updated_at: Optional[datetime]
+    # created_at: datetime
+    # updated_at: Optional[datetime]
     
     class Config:
         from_attributes = True
