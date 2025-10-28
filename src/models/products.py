@@ -1,6 +1,6 @@
 
 from uuid import uuid4
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, func, Table, Enum as SQLEnum
+from sqlalchemy import Boolean, Column, Integer, String, Float, DateTime, ForeignKey, func, Table, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 
 from src.database import Base
@@ -21,6 +21,12 @@ class Product(Base):
     state = Column(SQLEnum("new", "used", name="product_state"), nullable=False, default="new")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    is_featured = Column(Boolean, default=False, index=True)  # Produit en vedette
+    is_daily_promo = Column(Boolean, default=False, index=True)  # Promo du jour
+    promo_percentage = Column(Integer, nullable=True)  # Pourcentage de réduction (ex: 15 = 15%)
+    promo_start_date = Column(DateTime(timezone=True), nullable=True)  # Début promo
+    promo_end_date = Column(DateTime(timezone=True), nullable=True)  # Fin promo
     
     # Relations
     brand = relationship("Brand", back_populates="products")
