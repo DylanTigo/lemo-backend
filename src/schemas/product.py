@@ -9,7 +9,7 @@ from src.schemas.category import CategoryOut
 
 class ProductImageSchema(BaseModel):
     url: str
-    is_primary: int = 0  # 0 = False, 1 = True
+    is_primary: bool = False
 
     class Config:
         from_attributes = True
@@ -134,3 +134,4 @@ class ProductListOut(BaseModel):
     total: int
     page: int
     page_size: int
+    has_more: bool = False

@@ -5,6 +5,7 @@ from src.models.products import Product
 from src.models.product_images import ProductImage
 from src.models.associations import product_attributes
 from src.repositories.base import BaseRepository
+from src.utils.logging_config import logger
 
 
 class ProductRepository(BaseRepository):
@@ -115,7 +116,7 @@ class ProductRepository(BaseRepository):
         async with self.db.get_session() as session:
             for idx, url in enumerate(image_urls):
                 image = ProductImage(
-                    product_id=product_id, url=url, is_primary=1 if idx == 0 else 0
+                    product_id=product_id, url=url, is_primary=True if idx == 0 else False
                 )
                 session.add(image)
             await session.commit()
@@ -208,7 +209,7 @@ class ProductRepository(BaseRepository):
             result = await session.execute(query)
             return result.scalars().all()
 
-    async def list_daily_promos(self, limit: int = 20) -> List[Product]:
+    async def list_daily_promos(self) -> List[Product]:
         """Liste les promotions du jour actives"""
         async with self.db.get_session() as session:
             now = func.now()
@@ -229,7 +230,6 @@ class ProductRepository(BaseRepository):
                 .order_by(
                     Product.promo_percentage.desc()
                 )  # Trier par % de réduction décroissant
-                .limit(limit)
             )
 
             result = await session.execute(query)
@@ -261,3 +261,19 @@ class ProductRepository(BaseRepository):
             await session.commit()
             await session.refresh(product)
             return product
+
+    async def get_products_by_ids(self, product_ids: List[str]) -> List[Product]:
+        """Récupère plusieurs produits par leurs IDs"""
+        async with self.db.get_session() as session:
+            query = (
+                select(Product)
+                .options(
+                    selectinload(Product.images),
+                    selectinload(Product.brand),
+                    selectinload(Product.category),
+                    selectinload(Product.attributes),
+                )
+                .where(Product.id.in_(product_ids))
+            )
+            result = await session.execute(query)
+            return result.scalars().all()

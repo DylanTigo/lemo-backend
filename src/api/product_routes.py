@@ -1,5 +1,6 @@
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, status, Query
+from src.schemas.cart import CartRequest, CartResponse
 from src.services.product_service import ProductService, get_product_service
 from src.schemas.product import (
     ProductCreate,
@@ -15,6 +16,53 @@ from src.utils.logging_config import logger
 router = APIRouter(prefix="/products", tags=["Products"])
 
 # Routes publiques
+
+
+@router.get("/featured", response_model=List[ProductOut])
+async def get_featured_products(
+    limit: int = Query(10, ge=1, le=50, description="Nombre de produits à retourner"),
+    product_service: ProductService = Depends(get_product_service),
+):
+    """Liste les produits en vedette (Public)"""
+    try:
+        return await product_service.list_featured_products(limit)
+    except Exception as e:
+        logger.error(f"Error getting featured products: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la récupération des produits en vedette",
+        )
+
+
+@router.get("/daily-promo", response_model=List[ProductOut])
+async def get_daily_promos(
+    product_service: ProductService = Depends(get_product_service),
+):
+    """Liste les promotions du jour actives (Public)"""
+    try:
+        return await product_service.list_daily_promos()
+    except Exception as e:
+        logger.error(f"Error getting daily promos: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la récupération des promotions",
+        )
+
+
+@router.post("/cart", response_model=CartResponse)
+async def get_cart_products(
+    cart_request: CartRequest,
+    product_service: ProductService = Depends(get_product_service),
+):
+    """Récupère les produits du panier depuis le localStorage (Public)"""
+    try:
+        return await product_service.get_cart_products(cart_request)
+    except Exception as e:
+        logger.error(f"Error getting cart products: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors de la récupération des produits du panier",
+        )
 
 
 @router.get("", response_model=ProductListOut)
@@ -46,89 +94,6 @@ async def list_products(
             is_new=is_new,
             latest_products=latest_products,
             latest_products_count=latest_products_count,
-        )
-    except Exception as e:
-        logger.error(f"Error listing products: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la récupération des produits",
-        )
-
-
-@router.get("/{product_id}", response_model=ProductOut)
-async def get_product(
-    product_id: str, product_service: ProductService = Depends(get_product_service)
-):
-    """Récupère un produit par ID (Public)"""
-    try:
-        return await product_service.get_product(product_id)
-    except NotFoundException as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error getting product {product_id}: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la récupération du produit",
-        )
-
-
-@router.get("/featured", response_model=List[ProductOut])
-async def get_featured_products(
-    limit: int = Query(10, ge=1, le=50, description="Nombre de produits à retourner"),
-    product_service: ProductService = Depends(get_product_service),
-):
-    """Liste les produits en vedette (Public)"""
-    try:
-        return await product_service.list_featured_products(limit)
-    except Exception as e:
-        logger.error(f"Error getting featured products: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la récupération des produits en vedette",
-        )
-
-
-@router.get("/daily-promo", response_model=List[ProductOut])
-async def get_daily_promos(
-    limit: int = Query(20, ge=1, le=50, description="Nombre de promotions à retourner"),
-    product_service: ProductService = Depends(get_product_service),
-):
-    """Liste les promotions du jour actives (Public)"""
-    try:
-        return await product_service.list_daily_promos(limit)
-    except Exception as e:
-        logger.error(f"Error getting daily promos: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erreur lors de la récupération des promotions",
-        )
-
-
-@router.get("", response_model=ProductListOut)
-async def list_products(
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    search: Optional[str] = None,
-    category_id: Optional[int] = None,
-    brand_id: Optional[int] = None,
-    min_price: Optional[float] = Query(None, ge=0),
-    max_price: Optional[float] = Query(None, ge=0),
-    condition: Optional[int] = Query(None, ge=0, le=10),
-    is_new: Optional[bool] = None,
-    product_service: ProductService = Depends(get_product_service),
-):
-    """Liste tous les produits avec filtres (Public)"""
-    try:
-        return await product_service.list_products(
-            page=page,
-            page_size=page_size,
-            search=search,
-            category_id=category_id,
-            brand_id=brand_id,
-            min_price=min_price,
-            max_price=max_price,
-            condition=condition,
-            is_new=is_new,
         )
     except Exception as e:
         logger.error(f"Error listing products: {e}")

@@ -5,6 +5,7 @@ from src.repositories.brand_repo import BrandRepository
 from src.repositories.category_repo import CategoryRepository
 from src.repositories.attribute_repo import AttributeRepository
 from src.database import Database, get_db
+from src.schemas.cart import CartProductOut, CartRequest, CartResponse
 from src.schemas.product import (
     ProductCreate,
     ProductUpdate,
@@ -75,9 +76,10 @@ class ProductService:
         )
 
         products_out = [ProductOut.model_validate(p) for p in products]
+        has_more = skip + len(products) < total
 
         return ProductListOut(
-            products=products_out, total=total, page=page, page_size=page_size
+            products=products_out, total=total, page=page, page_size=page_size, has_more=has_more
         )
 
     async def create_product(self, product_data: ProductCreate) -> ProductOut:
@@ -243,10 +245,10 @@ class ProductService:
         products = await self.product_repo.list_featured_products(limit)
         return [ProductOut.model_validate(p) for p in products]
 
-    async def list_daily_promos(self, limit: int = 20) -> List[ProductOut]:
+    async def list_daily_promos(self) -> List[ProductOut]:
         """Liste les promotions du jour actives (Public)"""
-        products = await self.product_repo.list_daily_promos(limit)
-        return [ProductOut.model_validate(p) for p in products]
+        products = await self.product_repo.list_daily_promos()
+        return [ProductOut.model_validate(p) for p in products] or []
 
     async def update_product_promo(
         self, product_id: str, promo_data: PromoUpdate
@@ -276,6 +278,34 @@ class ProductService:
         product = await self.product_repo.update_promo(product_id, promo_dict)
 
         return ProductOut.model_validate(product)
+
+    async def get_cart_products(self, cart_request: CartRequest) -> CartResponse:
+        """Récupère les produits du panier (Public)"""
+        # Récupérer les produits
+        products = await self.product_repo.get_products_by_ids(cart_request.product_ids)
+
+        # Construire la réponse avec disponibilité
+        cart_products = []
+        unavailable_count = 0
+
+        for product in products:
+            is_available = product.stock_quantity > 0
+            if not is_available:
+                unavailable_count += 1
+
+            cart_products.append(
+                CartProductOut(
+                    product=ProductOut.model_validate(product),
+                    is_available=is_available,
+                    stock_quantity=product.stock_quantity,
+                )
+            )
+
+        return CartResponse(
+            products=cart_products,
+            total_products=len(cart_products),
+            unavailable_count=unavailable_count,
+        )
 
 
 def get_product_service(db: Database = Depends(get_db)) -> ProductService:
