@@ -12,7 +12,7 @@ class Product(Base):
     id = Column(String(36), primary_key=True, index=True, default=lambda: str(uuid4()))
     brand_id = Column(Integer, ForeignKey('brands.id', ondelete='SET NULL'), nullable=True)
     category_id = Column(Integer, ForeignKey('categories.id', ondelete='SET NULL'), nullable=True)
-    name = Column(String, nullable=False, index=True)
+    name = Column(String, nullable=False, index=True, unique=True)
     description = Column(String(2000))
     price = Column(Float, nullable=False)
     condition = Column(Integer, nullable=True, default=0)

@@ -13,7 +13,8 @@ from src.schemas.product import (
     ProductListOut,
     PromoUpdate,
 )
-from src.utils.exceptions import NotFoundException
+from src.utils.exceptions import BadRequestException, NotFoundException
+from src.utils.logging_config import logger
 
 
 class ProductService:
@@ -25,11 +26,15 @@ class ProductService:
         self.attribute_repo = AttributeRepository(db)
 
     def _generate_product_name(
-        self, category_name: str, brand_name: str, attributes: List[dict]
+        self,
+        product_model: str,
+        category_name: str,
+        brand_name: str,
+        attributes: List[dict],
     ) -> str:
         """Génère le nom générique du produit"""
         # Format: Catégorie + Marque + Attributs
-        parts = [category_name, brand_name]
+        parts = [category_name, brand_name, product_model]
 
         # Ajouter les valeurs des attributs
         for attr in attributes:
@@ -79,11 +84,16 @@ class ProductService:
         has_more = skip + len(products) < total
 
         return ProductListOut(
-            products=products_out, total=total, page=page, page_size=page_size, has_more=has_more
+            products=products_out,
+            total=total,
+            page=page,
+            page_size=page_size,
+            has_more=has_more,
         )
 
     async def create_product(self, product_data: ProductCreate) -> ProductOut:
         """Crée un produit avec validation des relations (Admin)"""
+
         # 1. Vérifier que la marque existe
         brand = await self.brand_repo.get_by_id(product_data.brand_id)
         if not brand:
@@ -110,14 +120,23 @@ class ProductService:
 
         # 4. Générer le nom générique
         product_name = self._generate_product_name(
-            category.name, brand.name, attribute_values
+            product_model=product_data.model,
+            category_name=category.name,
+            brand_name=brand.name,
+            attributes=attribute_values,
         )
 
         # 5. Créer le produit
         product_dict = product_data.model_dump(exclude={"image_urls", "attributes"})
         product_dict["name"] = product_name
-
         product = await self.product_repo.create_product(product_dict)
+        if not product:
+            logger.error(
+                f"Échec de la création du produit avec le nom '{product_name}'"
+            )
+            raise BadRequestException(
+                f"Un produit avec le nom '{product_name}' existe déjà."
+            )
 
         # 6. Ajouter les images
         if product_data.image_urls:
@@ -203,7 +222,10 @@ class ProductService:
                 attribute_values = [{"value": ""} for _ in existing_product.attributes]
 
             update_data["name"] = self._generate_product_name(
-                category.name, brand.name, attribute_values
+                product_model=product_data.model,
+                category_name=category.name,
+                brand_name=brand.name,
+                attributes=attribute_values,
             )
 
         # Mettre à jour le produit

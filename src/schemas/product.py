@@ -25,14 +25,21 @@ class ProductAttributeValue(BaseModel):
 class ProductBase(BaseModel):
     description: Optional[str] = Field(None, max_length=2000)
     price: float = Field(..., gt=0)
+    model: str = Field(..., max_length=100)
     condition: Optional[int] = Field(
         None, ge=0, le=10, description="null = neuf, 0-10 = occasion"
     )
     stock_quantity: int = Field(default=0, ge=0)
+    is_featured: Optional[bool] = None
+    is_daily_promo: Optional[bool] = None
+    promo_percentage: Optional[int] = Field(
+        None, ge=0, le=99, description="Pourcentage de réduction (0-99%)"
+    )
+    promo_start_date: Optional[datetime] = None
+    promo_end_date: Optional[datetime] = None
 
 
 class ProductCreate(ProductBase):
-    id: Optional[str] = Field(None, description="SKU du produit")
     image_urls: List[str] = Field(
         default_factory=list, description="URLs des images depuis CDN"
     )
@@ -41,11 +48,11 @@ class ProductCreate(ProductBase):
     attributes: List[ProductAttributeValue] = Field(
         default_factory=list, description="Attributs avec leurs valeurs"
     )
-    is_featured: bool = Field(default=False)
 
 
 class ProductUpdate(BaseModel):
     description: Optional[str] = Field(None, max_length=2000)
+    model: str = Field(..., max_length=100)
     price: Optional[float] = Field(None, gt=0)
     condition: Optional[int] = Field(None, ge=0, le=10)
     stock_quantity: Optional[int] = Field(None, ge=0)
@@ -54,6 +61,12 @@ class ProductUpdate(BaseModel):
     image_urls: Optional[List[str]] = None
     attributes: Optional[List[ProductAttributeValue]] = None
     is_featured: Optional[bool] = None
+    is_daily_promo: Optional[bool] = None
+    promo_percentage: Optional[int] = Field(
+        None, ge=0, le=99, description="Pourcentage de réduction (0-99%)"
+    )
+    promo_start_date: Optional[datetime] = None
+    promo_end_date: Optional[datetime] = None
 
 
 class PromoUpdate(BaseModel):
@@ -61,7 +74,7 @@ class PromoUpdate(BaseModel):
 
     is_daily_promo: bool
     promo_percentage: Optional[int] = Field(
-        None, ge=1, le=99, description="Pourcentage de réduction (1-99%)"
+        None, ge=0, le=99, description="Pourcentage de réduction (0-99%)"
     )
     promo_start_date: Optional[datetime] = None
     promo_end_date: Optional[datetime] = None
@@ -77,15 +90,16 @@ class PromoUpdate(BaseModel):
         return v
 
 
-class ProductUpdate(BaseModel):
-    description: Optional[str] = Field(None, max_length=2000)
-    price: Optional[float] = Field(None, gt=0)
-    condition: Optional[int] = Field(None, ge=0, le=10)
-    stock_quantity: Optional[int] = Field(None, ge=0)
-    brand_id: Optional[int] = None
-    category_id: Optional[int] = None
-    image_urls: Optional[List[str]] = None
-    attributes: Optional[List[ProductAttributeValue]] = None
+# class ProductUpdate(BaseModel):
+#     description: Optional[str] = Field(None, max_length=2000)
+#     model: str = Field(..., max_length=100)
+#     price: Optional[float] = Field(None, gt=0)
+#     condition: Optional[int] = Field(None, ge=0, le=10)
+#     stock_quantity: Optional[int] = Field(None, ge=0)
+#     brand_id: Optional[int] = None
+#     category_id: Optional[int] = None
+#     image_urls: Optional[List[str]] = None
+#     attributes: Optional[List[ProductAttributeValue]] = None
 
 
 class ProductOut(BaseModel):

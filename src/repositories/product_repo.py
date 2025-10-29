@@ -105,6 +105,13 @@ class ProductRepository(BaseRepository):
     async def create_product(self, product_data: dict) -> Product:
         """Crée un produit"""
         async with self.db.get_session() as session:
+            name =  product_data.get("name", "")
+            # Assurer l'unicité du nom
+            existing_product = await session.execute(
+                select(Product).where(Product.name == name)
+            )
+            if existing_product.scalar_one_or_none(): 
+                return None
             product = Product(**product_data)
             session.add(product)
             await session.commit()

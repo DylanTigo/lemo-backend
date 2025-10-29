@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     )
     JWT_SECRET_KEY: str = "lemo-backend"
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 24 * 7  
 
     POSTGRES_DB_USER: str = ""
     POSTGRES_PASSWORD: str = ""
