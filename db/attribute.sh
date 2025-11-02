@@ -1,61 +1,54 @@
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJkeWxhbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NjI2NDM0MTV9.LanPG-LEYH8CDwltuiO9Hre7qhGGZLiEQf4YarrWF44
 
-# Téléphones (ID Fictif: 1)
-curl -X POST 'http://localhost:8000/api/v1/categories' \
+# RAM (ID Fictif: 1)
+curl -X POST 'http://localhost:8000/api/v1/attributes' \
 -H 'Content-Type: application/json' \
 -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJkeWxhbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NjI2NDM0MTV9.LanPG-LEYH8CDwltuiO9Hre7qhGGZLiEQf4YarrWF44' \
 -d '{
-  "name": "Téléphones",
-  "description": "Smartphones et téléphones mobiles",
-  "parent_id": null
+  "name": "RAM",
+  "type": "text"
 }'
 
-# Ordinateurs (ID Fictif: 2)
-curl -X POST 'http://localhost:8000/api/v1/categories' \
+# Processeur (ID Fictif: 2)
+curl -X POST 'http://localhost:8000/api/v1/attributes' \
 -H 'Content-Type: application/json' \
 -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJkeWxhbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NjI2NDM0MTV9.LanPG-LEYH8CDwltuiO9Hre7qhGGZLiEQf4YarrWF44' \
 -d '{
-  "name": "Ordinateurs",
-  "description": "Systèmes informatiques complets (Laptops et Desktops)",
-  "parent_id": null
+  "name": "Processeur",
+  "type": "text"
 }'
 
-# Laptop (ID Fictif: 3, Parent: 2)
-curl -X POST 'http://localhost:8000/api/v1/categories' \
+# Stockage (ID Fictif: 3)
+curl -X POST 'http://localhost:8000/api/v1/attributes' \
 -H 'Content-Type: application/json' \
 -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJkeWxhbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NjI2NDM0MTV9.LanPG-LEYH8CDwltuiO9Hre7qhGGZLiEQf4YarrWF44' \
 -d '{
-  "name": "Laptop",
-  "description": "Ordinateurs portables",
-  "parent_id": 2
+  "name": "Stockage",
+  "type": "text"
 }'
 
-# Desktop (ID Fictif: 4, Parent: 2)
-curl -X POST 'http://localhost:8000/api/v1/categories' \
+# Taille Écran (ID Fictif: 4)
+curl -X POST 'http://localhost:8000/api/v1/attributes' \
 -H 'Content-Type: application/json' \
 -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJkeWxhbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NjI2NDM0MTV9.LanPG-LEYH8CDwltuiO9Hre7qhGGZLiEQf4YarrWF44' \
 -d '{
-  "name": "Desktop",
-  "description": "Ordinateurs de bureau et tours",
-  "parent_id": 2
+  "name": "Taille Écran",
+  "type": "number"
 }'
 
-# Ecran (ID Fictif: 5)
-curl -X POST 'http://localhost:8000/api/v1/categories' \
+# Réseau 5G (ID Fictif: 5)
+curl -X POST 'http://localhost:8000/api/v1/attributes' \
 -H 'Content-Type: application/json' \
 -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJkeWxhbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NjI2NDM0MTV9.LanPG-LEYH8CDwltuiO9Hre7qhGGZLiEQf4YarrWF44' \
 -d '{
-  "name": "Ecran",
-  "description": "Moniteurs et écrans d''affichage",
-  "parent_id": null
+  "name": "Réseau 5G",
+  "type": "boolean"
 }'
 
-# Accessoires (ID Fictif: 6)
-curl -X POST 'http://localhost:8000/api/v1/categories' \
+# Résolution (ID Fictif: 6)
+curl -X POST 'http://localhost:8000/api/v1/attributes' \
 -H 'Content-Type: application/json' \
 -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJkeWxhbkBhZG1pbi5jb20iLCJyb2xlIjoiYWRtaW4iLCJleHAiOjE3NjI2NDM0MTV9.LanPG-LEYH8CDwltuiO9Hre7qhGGZLiEQf4YarrWF44' \
 -d '{
-  "name": "Accessoires",
-  "description": "Périphériques, câbles et gadgets",
-  "parent_id": null
+  "name": "Résolution",
+  "type": "list"
 }'
