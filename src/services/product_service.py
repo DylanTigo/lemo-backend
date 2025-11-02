@@ -62,6 +62,7 @@ class ProductService:
         is_new: Optional[bool] = None,
         latest_products: Optional[bool] = False,
         latest_products_count: Optional[int] = 6,
+        has_filter: bool = False,
     ) -> ProductListOut:
         """Liste les produits avec filtres"""
         skip = (page - 1) * page_size
@@ -83,12 +84,27 @@ class ProductService:
         products_out = [ProductOut.model_validate(p) for p in products]
         has_more = skip + len(products) < total
 
+        # Calculer les filtres disponibles si demandé
+        filters = None
+        if has_filter:
+            filters_data = await self.product_repo.get_available_filters(
+                search=search,
+                category_id=category_id,
+                brand_id=brand_id,
+                min_price=min_price,
+                max_price=max_price,
+                condition=condition,
+                is_new=is_new,
+            )
+            filters = filters_data
+
         return ProductListOut(
             products=products_out,
             total=total,
             page=page,
             page_size=page_size,
             has_more=has_more,
+            filters=filters,
         )
 
     async def create_product(self, product_data: ProductCreate) -> ProductOut:

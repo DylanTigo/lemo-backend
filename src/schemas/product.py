@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from src.schemas.attribute import AttributeOut
 from src.schemas.brand import BrandOut
 from src.schemas.category import CategoryOut
+from src.schemas.enum import AttributeType
 
 
 class ProductImageSchema(BaseModel):
@@ -143,9 +144,52 @@ class ProductOut(BaseModel):
         from_attributes = True
 
 
+class AttributeFilterValue(BaseModel):
+    """Valeur d'un attribut avec son nombre d'occurrences"""
+    value: str
+    count: int
+
+
+class AttributeFilter(BaseModel):
+    """Filtre pour un attribut spécifique"""
+    attribute_id: int
+    attribute_name: str
+    attribute_type: AttributeType
+    values: List[AttributeFilterValue]
+
+
+class BrandFilter(BaseModel):
+    """Filtre pour une marque"""
+    brand_id: int
+    brand_name: str
+    count: int
+
+
+class CategoryFilter(BaseModel):
+    """Filtre pour une catégorie"""
+    category_id: int
+    category_name: str
+    count: int
+
+
+class PriceRangeFilter(BaseModel):
+    """Plage de prix disponible"""
+    min_price: float
+    max_price: float
+
+
+class AvailableFilters(BaseModel):
+    """Tous les filtres disponibles basés sur les résultats"""
+    price_range: Optional[PriceRangeFilter] = None
+    brands: List[BrandFilter] = []
+    categories: List[CategoryFilter] = []
+    attributes: List[AttributeFilter] = []
+
+
 class ProductListOut(BaseModel):
     products: List[ProductOut]
     total: int
     page: int
     page_size: int
     has_more: bool = False
+    filters: Optional[AvailableFilters] = None

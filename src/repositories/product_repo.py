@@ -1,9 +1,11 @@
 from typing import Optional, List, Dict
-from sqlalchemy import select, func, or_, delete
+from sqlalchemy import select, func, or_, delete, distinct
 from sqlalchemy.orm import selectinload
 from src.models.products import Product
 from src.models.product_images import ProductImage
 from src.models.categories import Category
+from src.models.brands import Brand
+from src.models.attributes import Attribute
 from src.models.associations import product_attributes
 from src.repositories.base import BaseRepository
 from src.utils.logging_config import logger
@@ -141,6 +143,163 @@ class ProductRepository(BaseRepository):
             products = result.scalars().all()
 
             return products, total
+
+    async def get_available_filters(
+        self,
+        search: Optional[str] = None,
+        category_id: Optional[int] = None,
+        brand_id: Optional[int] = None,
+        min_price: Optional[float] = None,
+        max_price: Optional[float] = None,
+        condition: Optional[int] = None,
+        is_new: Optional[bool] = None,
+    ) -> Dict:
+        """Calcule les filtres disponibles basés sur les critères de recherche actuels"""
+        async with self.db.get_session() as session:
+            # Construire la requête de base (sans les filtres qu'on veut analyser)
+            base_query = select(Product)
+
+            # Filtre recherche textuelle
+            if search:
+                base_query = base_query.where(
+                    or_(
+                        Product.name.ilike(f"%{search}%"),
+                        Product.description.ilike(f"%{search}%"),
+                    )
+                )
+
+            # Appliquer les filtres existants pour affiner les résultats
+            if category_id:
+                category_ids = await self._get_category_with_children_ids(category_id)
+                base_query = base_query.where(Product.category_id.in_(category_ids))
+
+            if brand_id:
+                base_query = base_query.where(Product.brand_id == brand_id)
+
+            if min_price is not None:
+                base_query = base_query.where(Product.price >= min_price)
+
+            if max_price is not None:
+                base_query = base_query.where(Product.price <= max_price)
+
+            if is_new is not None:
+                if is_new:
+                    base_query = base_query.where(Product.condition.is_(None))
+                else:
+                    base_query = base_query.where(Product.condition.isnot(None))
+            elif condition is not None:
+                base_query = base_query.where(Product.condition == condition)
+
+            # 1. Calculer la plage de prix
+            price_query = select(
+                func.min(Product.price).label("min_price"),
+                func.max(Product.price).label("max_price"),
+            ).select_from(base_query.subquery())
+            
+            price_result = await session.execute(price_query)
+            price_row = price_result.first()
+            
+            price_range = None
+            if price_row and price_row.min_price is not None:
+                price_range = {
+                    "min_price": float(price_row.min_price),
+                    "max_price": float(price_row.max_price),
+                }
+
+            # 2. Calculer les marques disponibles avec leur nombre
+            filtered_products = base_query.subquery().alias("filtered_products")
+            brands_query = (
+                select(
+                    Brand.id,
+                    Brand.name,
+                    func.count(filtered_products.c.id).label("count")
+                )
+                .select_from(filtered_products)
+                .join(Brand, Brand.id == filtered_products.c.brand_id)
+                .group_by(Brand.id, Brand.name)
+                .order_by(func.count(filtered_products.c.id).desc())
+            )
+
+            brands_result = await session.execute(brands_query)
+            brands = [
+                {"brand_id": row.id, "brand_name": row.name, "count": row.count}
+                for row in brands_result
+            ]
+
+            # 3. Calculer les catégories disponibles avec leur nombre
+            filtered_products_cat = base_query.subquery().alias("filtered_products_cat")
+            categories_query = (
+                select(
+                    Category.id,
+                    Category.name,
+                    func.count(filtered_products_cat.c.id).label("count")
+                )
+                .select_from(filtered_products_cat)
+                .join(Category, Category.id == filtered_products_cat.c.category_id)
+                .group_by(Category.id, Category.name)
+                .order_by(func.count(filtered_products_cat.c.id).desc())
+            )
+
+            categories_result = await session.execute(categories_query)
+            categories = [
+                {"category_id": row.id, "category_name": row.name, "count": row.count}
+                for row in categories_result
+            ]
+
+            # 4. Calculer les attributs disponibles avec leurs valeurs
+            # D'abord, récupérer les product_ids filtrés
+            product_ids_query = select(Product.id).select_from(base_query.subquery())
+            product_ids_result = await session.execute(product_ids_query)
+            product_ids = [row[0] for row in product_ids_result]
+
+            attributes_data = {}
+            if product_ids:
+                # Récupérer tous les attributs avec leurs valeurs pour ces produits
+                attrs_query = (
+                    select(
+                        Attribute.id,
+                        Attribute.name,
+                        Attribute.type,
+                        product_attributes.c.value,
+                        func.count(product_attributes.c.product_id).label("count")
+                    )
+                    .select_from(product_attributes)
+                    .join(Attribute, Attribute.id == product_attributes.c.attribute_id)
+                    .where(product_attributes.c.product_id.in_(product_ids))
+                    .group_by(Attribute.id, Attribute.name, product_attributes.c.value)
+                    .order_by(Attribute.name, func.count(product_attributes.c.product_id).desc())
+                )
+                
+                attrs_result = await session.execute(attrs_query)
+                
+                for row in attrs_result:
+                    attr_id = row.id
+                    attr_name = row.name
+                    attr_type = row.type
+                    value = row.value
+                    count = row.count
+                    
+                    if attr_id not in attributes_data:
+                        attributes_data[attr_id] = {
+                            "attribute_id": attr_id,
+                            "attribute_name": attr_name,
+                            "attribute_type": attr_type,
+                            "values": []
+                        }
+                    
+                    attributes_data[attr_id]["values"].append({
+                        "value": value,
+                        "count": count
+                    })
+
+            attributes = list(attributes_data.values())
+
+            return {
+                "price_range": price_range,
+                "brands": brands,
+                "categories": categories,
+                "attributes": attributes,
+            }
 
     async def create_product(self, product_data: dict) -> Product:
         """Crée un produit"""

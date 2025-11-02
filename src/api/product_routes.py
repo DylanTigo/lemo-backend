@@ -76,6 +76,7 @@ async def list_products(
     max_price: Optional[float] = Query(None, ge=0),
     condition: Optional[int] = Query(None, ge=0, le=10),
     is_new: Optional[bool] = None,
+    has_filter: bool = Query(False, description="Retourner les filtres disponibles basés sur les résultats"),
     product_service: ProductService = Depends(get_product_service),
     latest_products: Optional[bool] = Query(False),
     latest_products_count: Optional[int] = Query(6),
@@ -94,6 +95,7 @@ async def list_products(
             is_new=is_new,
             latest_products=latest_products,
             latest_products_count=latest_products_count,
+            has_filter=has_filter,
         )
     except Exception as e:
         logger.error(f"Error listing products: {e}")
