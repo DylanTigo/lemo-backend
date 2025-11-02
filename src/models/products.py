@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, Column, Integer, String, Float, DateTime, Foreig
 from sqlalchemy.orm import relationship
 
 from src.database import Base
-from src.models.associations import order_products, product_attributes
+from src.models.associations import order_products
 
 class Product(Base):
     __tablename__ = 'products'
@@ -32,7 +32,7 @@ class Product(Base):
     brand = relationship("Brand", back_populates="products")
     category = relationship("Category", back_populates="products")
     images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan")
-    attributes = relationship("Attribute", secondary=product_attributes, back_populates="products")
+    product_attributes = relationship("ProductAttribute", back_populates="product", cascade="all, delete-orphan")
     orders = relationship("Order", secondary=order_products, back_populates="products")
     
     def __repr__(self):

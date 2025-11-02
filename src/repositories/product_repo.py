@@ -6,7 +6,7 @@ from src.models.product_images import ProductImage
 from src.models.categories import Category
 from src.models.brands import Brand
 from src.models.attributes import Attribute
-from src.models.associations import product_attributes
+from src.models.associations import ProductAttribute
 from src.repositories.base import BaseRepository
 from src.utils.logging_config import logger
 
@@ -61,7 +61,7 @@ class ProductRepository(BaseRepository):
                     selectinload(Product.images),
                     selectinload(Product.brand),
                     selectinload(Product.category),
-                    selectinload(Product.attributes),
+                    selectinload(Product.product_attributes).selectinload(ProductAttribute.attribute),
                 )
                 .where(Product.id == product_id)
             )
@@ -88,7 +88,7 @@ class ProductRepository(BaseRepository):
                 selectinload(Product.images),
                 selectinload(Product.brand),
                 selectinload(Product.category),
-                selectinload(Product.attributes),
+                selectinload(Product.product_attributes).selectinload(ProductAttribute.attribute),
             )
 
             # Filtre recherche textuelle (sur le nom générique indexé)
@@ -260,14 +260,14 @@ class ProductRepository(BaseRepository):
                         Attribute.id,
                         Attribute.name,
                         Attribute.type,
-                        product_attributes.c.value,
-                        func.count(product_attributes.c.product_id).label("count")
+                        ProductAttribute.value,
+                        func.count(ProductAttribute.product_id).label("count")
                     )
-                    .select_from(product_attributes)
-                    .join(Attribute, Attribute.id == product_attributes.c.attribute_id)
-                    .where(product_attributes.c.product_id.in_(product_ids))
-                    .group_by(Attribute.id, Attribute.name, product_attributes.c.value)
-                    .order_by(Attribute.name, func.count(product_attributes.c.product_id).desc())
+                    .select_from(ProductAttribute)
+                    .join(Attribute, Attribute.id == ProductAttribute.attribute_id)
+                    .where(ProductAttribute.product_id.in_(product_ids))
+                    .group_by(Attribute.id, Attribute.name, Attribute.type, ProductAttribute.value)
+                    .order_by(Attribute.name, func.count(ProductAttribute.product_id).desc())
                 )
                 
                 attrs_result = await session.execute(attrs_query)
@@ -333,12 +333,12 @@ class ProductRepository(BaseRepository):
         """Ajoute des attributs avec leurs valeurs à un produit"""
         async with self.db.get_session() as session:
             for attr in attributes:
-                stmt = product_attributes.insert().values(
+                product_attr = ProductAttribute(
                     product_id=product_id,
                     attribute_id=attr["attribute_id"],
                     value=attr["value"],
                 )
-                await session.execute(stmt)
+                session.add(product_attr)
             await session.commit()
 
     async def update_product(
@@ -374,8 +374,8 @@ class ProductRepository(BaseRepository):
         """Supprime tous les attributs d'un produit"""
         async with self.db.get_session() as session:
             await session.execute(
-                delete(product_attributes).where(
-                    product_attributes.c.product_id == product_id
+                delete(ProductAttribute).where(
+                    ProductAttribute.product_id == product_id
                 )
             )
             await session.commit()
@@ -404,7 +404,7 @@ class ProductRepository(BaseRepository):
                     selectinload(Product.images),
                     selectinload(Product.brand),
                     selectinload(Product.category),
-                    selectinload(Product.attributes),
+                    selectinload(Product.product_attributes).selectinload(ProductAttribute.attribute),
                 )
                 .where(Product.is_featured == True)
                 .where(Product.stock_quantity > 0)
@@ -426,7 +426,7 @@ class ProductRepository(BaseRepository):
                     selectinload(Product.images),
                     selectinload(Product.brand),
                     selectinload(Product.category),
-                    selectinload(Product.attributes),
+                    selectinload(Product.product_attributes).selectinload(ProductAttribute.attribute),
                 )
                 .where(Product.is_daily_promo == True)
                 .where(Product.promo_percentage.isnot(None))
@@ -477,7 +477,7 @@ class ProductRepository(BaseRepository):
                     selectinload(Product.images),
                     selectinload(Product.brand),
                     selectinload(Product.category),
-                    selectinload(Product.attributes),
+                    selectinload(Product.product_attributes).selectinload(ProductAttribute.attribute),
                 )
                 .where(Product.id.in_(product_ids))
             )

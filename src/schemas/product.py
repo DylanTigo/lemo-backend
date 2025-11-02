@@ -23,6 +23,28 @@ class ProductAttributeValue(BaseModel):
     value: str = Field(..., max_length=255)
 
 
+class ProductAttributeOut(BaseModel):
+    """Attribut avec sa valeur pour la sortie"""
+    
+    attribute_id: int
+    name: str
+    type: AttributeType
+    value: str
+    
+    @classmethod
+    def from_product_attribute(cls, product_attr):
+        """Crée un ProductAttributeOut à partir d'un objet ProductAttribute"""
+        return cls(
+            attribute_id=product_attr.attribute_id,
+            name=product_attr.attribute.name,
+            type=product_attr.attribute.type,
+            value=product_attr.value
+        )
+    
+    class Config:
+        from_attributes = True
+
+
 class ProductBase(BaseModel):
     description: Optional[str] = Field(None, max_length=2000)
     price: float = Field(..., gt=0)
@@ -120,7 +142,15 @@ class ProductOut(BaseModel):
     images: List[ProductImageSchema] = []
     brand: Optional[BrandOut] = None
     category: Optional[CategoryOut] = None
-    attributes: List[AttributeOut] = []
+    product_attributes: List[ProductAttributeOut] = []
+
+    @field_validator('product_attributes', mode='before')
+    @classmethod
+    def transform_product_attributes(cls, v):
+        """Transforme les ProductAttribute en ProductAttributeOut"""
+        if not v:
+            return []
+        return [ProductAttributeOut.from_product_attribute(attr) for attr in v]
 
     @computed_field
     @property

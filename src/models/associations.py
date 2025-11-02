@@ -1,4 +1,5 @@
 from sqlalchemy import Float, Table, Column, Integer, ForeignKey, String
+from sqlalchemy.orm import relationship
 from src.database import Base
 
 order_products = Table(
@@ -20,21 +21,25 @@ order_products = Table(
     Column("price_at_purchase", Float, nullable=False),
 )
 
-# Table de liaison pour product_attributes
-product_attributes = Table(
-    "product_attributes",
-    Base.metadata,
-    Column(
-        "product_id",
+# Modèle d'association pour product_attributes avec accès à la valeur
+class ProductAttribute(Base):
+    __tablename__ = "product_attributes"
+    
+    product_id = Column(
         String(255),
         ForeignKey("products.id", ondelete="CASCADE"),
         primary_key=True,
-    ),
-    Column(
-        "attribute_id",
+    )
+    attribute_id = Column(
         Integer,
         ForeignKey("attributes.id", ondelete="CASCADE"),
         primary_key=True,
-    ),
-    Column("value", String(255), nullable=False),
-)
+    )
+    value = Column(String(255), nullable=False)
+    
+    # Relations
+    product = relationship("Product", back_populates="product_attributes")
+    attribute = relationship("Attribute", back_populates="product_attributes")
+    
+    def __repr__(self):
+        return f"<ProductAttribute(product_id={self.product_id}, attribute_id={self.attribute_id}, value='{self.value}')>"

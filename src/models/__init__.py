@@ -6,4 +6,4 @@ from .product_images import ProductImage  # noqa: F401
 from .attributes import Attribute  # noqa: F401
 from .orders import Order  # noqa: F401
 from .users import User  # noqa: F401
-from .associations import order_products, product_attributes  # noqa: F401
+from .associations import order_products, ProductAttribute  # noqa: F401

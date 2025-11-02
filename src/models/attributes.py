@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, DateTime, Enum as SQLEnum, func,
 from sqlalchemy.orm import relationship
 
 from src.database import Base
-from src.models.associations import product_attributes
 from src.schemas.enum import AttributeType
 
 class Attribute(Base):
@@ -15,7 +14,7 @@ class Attribute(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relations
-    products = relationship("Product", secondary=product_attributes, back_populates="attributes")
+    product_attributes = relationship("ProductAttribute", back_populates="attribute", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Attribute(id={self.id}, name='{self.name}', type='{self.type}')>"
