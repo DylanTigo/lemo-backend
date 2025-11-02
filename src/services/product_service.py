@@ -52,7 +52,7 @@ class ProductService:
     async def list_products(
         self,
         page: int = 1,
-        page_size: int = 20,
+        page_size: int = 10,
         search: Optional[str] = None,
         category_id: Optional[int] = None,
         brand_id: Optional[int] = None,

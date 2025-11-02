@@ -3,6 +3,7 @@ from sqlalchemy import select, func, or_, delete
 from sqlalchemy.orm import selectinload
 from src.models.products import Product
 from src.models.product_images import ProductImage
+from src.models.categories import Category
 from src.models.associations import product_attributes
 from src.repositories.base import BaseRepository
 from src.utils.logging_config import logger
@@ -11,6 +12,43 @@ from src.utils.logging_config import logger
 class ProductRepository(BaseRepository):
     def __init__(self, db):
         super().__init__(db, Product)
+
+    async def _get_category_with_children_ids(self, category_id: int) -> List[int]:
+        """Récupère récursivement tous les IDs d'une catégorie et de ses enfants"""
+        async with self.db.get_session() as session:
+            category_ids = [category_id]
+            
+            # Récupérer la catégorie avec ses sous-catégories
+            query = select(Category).options(
+                selectinload(Category.subcategories)
+            ).where(Category.id == category_id)
+            
+            result = await session.execute(query)
+            category = result.scalar_one_or_none()
+            
+            if not category:
+                return category_ids
+            
+            # Fonction récursive pour obtenir tous les enfants
+            async def get_all_subcategories(cat_id: int) -> List[int]:
+                query = select(Category).where(Category.parent_id == cat_id)
+                result = await session.execute(query)
+                subcategories = result.scalars().all()
+                
+                ids = []
+                for subcat in subcategories:
+                    ids.append(subcat.id)
+                    # Récursion pour les sous-catégories de niveau inférieur
+                    child_ids = await get_all_subcategories(subcat.id)
+                    ids.extend(child_ids)
+                
+                return ids
+            
+            # Obtenir tous les IDs des sous-catégories
+            subcategory_ids = await get_all_subcategories(category_id)
+            category_ids.extend(subcategory_ids)
+            
+            return category_ids
 
     async def get_by_id(self, product_id: str) -> Optional[Product]:
         """Récupère un produit par ID avec toutes ses relations"""
@@ -30,8 +68,8 @@ class ProductRepository(BaseRepository):
 
     async def list_products(
         self,
-        skip: int = 0,
-        limit: int = 20,
+        skip: int,
+        limit: int,
         search: Optional[str] = None,
         category_id: Optional[int] = None,
         brand_id: Optional[int] = None,
@@ -62,7 +100,9 @@ class ProductRepository(BaseRepository):
 
             # Filtres
             if category_id:
-                query = query.where(Product.category_id == category_id)
+                # Récupérer la catégorie et toutes ses sous-catégories
+                category_ids = await self._get_category_with_children_ids(category_id)
+                query = query.where(Product.category_id.in_(category_ids))
 
             if brand_id:
                 query = query.where(Product.brand_id == brand_id)

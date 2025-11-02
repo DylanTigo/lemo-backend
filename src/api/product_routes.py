@@ -20,7 +20,7 @@ router = APIRouter(prefix="/products", tags=["Products"])
 
 @router.get("/featured", response_model=List[ProductOut])
 async def get_featured_products(
-    limit: int = Query(10, ge=1, le=50, description="Nombre de produits à retourner"),
+    limit: int = Query(8, ge=1, le=50, description="Nombre de produits à retourner"),
     product_service: ProductService = Depends(get_product_service),
 ):
     """Liste les produits en vedette (Public)"""
@@ -68,7 +68,7 @@ async def get_cart_products(
 @router.get("", response_model=ProductListOut)
 async def list_products(
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+    page_size: int = Query(10, ge=1, le=100),
     search: Optional[str] = None,
     category_id: Optional[int] = None,
     brand_id: Optional[int] = None,
