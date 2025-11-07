@@ -62,7 +62,7 @@ class ProductService:
         is_new: Optional[bool] = None,
         latest_products: Optional[bool] = False,
         latest_products_count: Optional[int] = 6,
-        has_filter: bool = False,
+        has_filter: bool = True,
     ) -> ProductListOut:
         """Liste les produits avec filtres"""
         skip = (page - 1) * page_size
