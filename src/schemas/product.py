@@ -131,6 +131,7 @@ class ProductOut(BaseModel):
     description: Optional[str]
     price: float
     condition: Optional[int]
+    model: str
     stock_quantity: int
     is_featured: bool
     is_daily_promo: bool
