@@ -17,7 +17,7 @@ from src.models.orders import Order
 from src.models.categories import Category
 from src.models.brands import Brand
 from src.models.attributes import Attribute
-from src.models.associations import order_products, product_attributes
+from src.models.associations import order_products, ProductAttribute
 
 # this is the Alembic Config object
 config = context.config

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum as SQLEnum, func, Table
+from sqlalchemy import Column, Integer, String, DateTime, Enum as SQLEnum, func, ARRAY
 from sqlalchemy.orm import relationship
 
 from src.database import Base
@@ -10,6 +10,7 @@ class Attribute(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False, unique=True)
     type = Column(SQLEnum(AttributeType), nullable=False)
+    list_values = Column(ARRAY(String), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     

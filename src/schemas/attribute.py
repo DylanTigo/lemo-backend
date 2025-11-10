@@ -6,6 +6,7 @@ from src.schemas.enum import AttributeType
 class AttributeBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     type: AttributeType
+    list_values: Optional[list[str]] = None
 
 class AttributeCreate(AttributeBase):
     pass
@@ -13,6 +14,7 @@ class AttributeCreate(AttributeBase):
 class AttributeUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     type: Optional[AttributeType] = None
+    list_values: Optional[list[str]] = None
 
 class AttributeOut(AttributeBase):
     id: int
