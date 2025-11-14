@@ -29,6 +29,7 @@ class ProductAttributeOut(BaseModel):
     attribute_id: int
     name: str
     type: AttributeType
+    list_values: Optional[List[str]] = None
     value: str
     
     @classmethod
@@ -38,6 +39,7 @@ class ProductAttributeOut(BaseModel):
             attribute_id=product_attr.attribute_id,
             name=product_attr.attribute.name,
             type=product_attr.attribute.type,
+            list_values=product_attr.attribute.list_values,
             value=product_attr.value
         )
     
