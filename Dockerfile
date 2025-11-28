@@ -33,4 +33,4 @@ USER fastapiuser
 EXPOSE 8000
 
 # Start server
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port $PORT"]
