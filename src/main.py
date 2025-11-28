@@ -21,6 +21,8 @@ async def lifespan(app: FastAPI):
     if os.getenv("ENVIRONMENT") != "test":
         await database.close()
 
+print(f"Starting {settings.PROJECT_NAME}...")
+print(f"Database URL: {settings.DATABASE_URL}")
 
 security_scheme = HTTPBearer()
 
