@@ -3,6 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.security import HTTPBearer
+import uvicorn
 from src.api import api_router
 from fastapi.middleware.cors import CORSMiddleware
 from src.config import settings, ORIGINS
@@ -38,3 +39,6 @@ app.add_middleware(
 
 # Include API routers
 app.include_router(api_router, prefix="/api/v1")
+
+if __name__ == "__main__":
+    uvicorn.run("src.main:app", host="0.0.0.0", port="8000", reload=True)
