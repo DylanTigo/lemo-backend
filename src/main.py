@@ -22,9 +22,6 @@ async def lifespan(app: FastAPI):
     if os.getenv("ENVIRONMENT") != "test":
         await database.close()
 
-print(f"Starting {settings.PROJECT_NAME}...")
-print(f"Database URL: {settings.DATABASE_URL}")
-
 security_scheme = HTTPBearer()
 
 app = FastAPI(lifespan=lifespan)
@@ -41,4 +38,4 @@ app.add_middleware(
 app.include_router(api_router, prefix="/api/v1")
 
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", host="0.0.0.0", port="8000", reload=True)
+    uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=True)
