@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     POSTGRES_DB_HOST: str = Field(..., env="POSTGRES_DB_HOST")
     POSTGRES_DB_PORT: int = Field(5432, env="POSTGRES_DB_PORT")
     POSTGRES_DB_NAME: str = Field(..., env="POSTGRES_DB_NAME")
-    DATABASE_URL: str = Field(None, env="DATABASE_URL")
+    # DATABASE_URL: str = Field(None, env="DATABASE_URL")
     DB_POOL_SIZE: int = Field(10, env="DB_POOL_SIZE")
     DB_MAX_OVERFLOW: int = 20
     DB_POOL_TIMEOUT: int = 30
@@ -38,5 +38,18 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Lemo Backend"
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = "your_secret_key"
+
+    @computed_field
+    @property
+    def DATABASE_URL(self) -> str:
+        """
+        This field is computed from the other Postgres fields at runtime.
+        It will not be loaded from or stored in the environment directly.
+        """
+        return (
+            f"postgresql+asyncpg://{self.POSTGRES_DB_USER}:"
+            f"{self.POSTGRES_PASSWORD}@{self.POSTGRES_DB_HOST}:"
+            f"{self.POSTGRES_DB_PORT}/{self.POSTGRES_DB_NAME}"
+        )
 
 settings = Settings()
