@@ -14,6 +14,9 @@ RUN pip install --user --no-cache-dir -r requirements.txt
 # ----------- FINAL IMAGE -----------
 FROM python:3.12-slim
 
+# Set environment variable
+ENV APP_PORT=8000
+
 WORKDIR /app
 
 # Copy installed deps from builder
@@ -25,12 +28,13 @@ ENV PATH=/root/.local/bin:$PATH
 # Copy app code
 COPY . .
 
-# Non-root user (security)
-RUN useradd -m fastapiuser
-USER fastapiuser
+# Expose the FastAPI port
+EXPOSE ${APP_PORT}
 
-# Expose port
-EXPOSE 8000
+# Non-root user (security)
+RUN useradd -m appuser && \
+    chown -R appuser:appuser /app
+USER appuser
 
 # Start server
-CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port $PORT"]
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${APP_PORT}"]
