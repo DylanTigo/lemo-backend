@@ -171,3 +171,5 @@ pyrightconfig.json
 # Ignore the codegpt folder
 .codegpt
 .vercel
+
+create_admin.py
