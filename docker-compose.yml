@@ -5,11 +5,26 @@ services:
     build: .
     container_name: lemo_backend_api
     env_file: .env
-    ports:
-      - "8000:8000"
     volumes:
       - .:/app
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload --proxy-headers --forwarded-allow-ips="*"
+    labels:
+      # Activer Traefik
+      - "traefik.enable=true"
+
+      # Router HTTPS
+      - "traefik.http.routers.lemo-backend-router.rule=Host(`api.lemo-group.com`)"
+      - "traefik.http.routers.lemo-backend-router.entrypoints=websecure"
+      - "traefik.http.routers.lemo-backend-router.tls.certresolver=letsencrypt"
+
+      # Router HTTP → redirection HTTPS
+      - "traefik.http.routers.lemo-backend-router-http.rule=Host(`api.lemo-group.com`)"
+      - "traefik.http.routers.lemo-backend-router-http.entrypoints=web"
+      - "traefik.http.routers.lemo-backend-router-http.middlewares=redirect-to-https"
+
+      # Service interne
+      - "traefik.http.services.lemo-backend-service.loadbalancer.server.port=8000"
+      - "traefik.http.services.lemo-backend-service.loadbalancer.passhostheader=true"
 
 volumes:
   db_data:
