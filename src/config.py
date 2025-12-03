@@ -10,8 +10,6 @@ SRC_DIR = Path(__file__).parent.parent
 DOTENV = os.path.join(SRC_DIR, ".env")
 DOTENV_PROD = os.path.join(SRC_DIR, ".env.prod")
 
-ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
-
 
 class Settings(BaseSettings):
 
@@ -34,6 +32,8 @@ class Settings(BaseSettings):
     DB_POOL_SIZE: int = Field(10, env="DB_POOL_SIZE")
     DB_MAX_OVERFLOW: int = 20
     DB_POOL_TIMEOUT: int = 30
+
+    ALLOWED_ORIGINS: list[str] = Field(["http://localhost:3000"], env="ALLOWED_ORIGINS")
 
     PROJECT_NAME: str = "Lemo Backend"
     API_V1_STR: str = "/api/v1"

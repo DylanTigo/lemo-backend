@@ -7,7 +7,7 @@ from fastapi.security import HTTPBearer
 import uvicorn
 from src.api import api_router
 from fastapi.middleware.cors import CORSMiddleware
-from src.config import settings, ORIGINS
+from src.config import settings
 from src.utils.logging_config import setup_logging
 from src.database import Database
 import os
@@ -29,13 +29,12 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ORIGINS,
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-print(f"Starting Lemo Backend with DATABASE_URL: {settings.DATABASE_URL}")
 # Include API routers
 app.include_router(api_router, prefix="/api/v1")
 
