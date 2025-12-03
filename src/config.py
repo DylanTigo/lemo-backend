@@ -25,11 +25,11 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 24 * 2
 
-    POSTGRES_DB_USER: str = Field(..., env="POSTGRES_DB_USER")
+    POSTGRES_USER: str = Field(..., env="POSTGRES_USER")
     POSTGRES_PASSWORD: str = Field(..., env="POSTGRES_PASSWORD")
-    POSTGRES_DB_HOST: str = Field(..., env="POSTGRES_DB_HOST")
-    POSTGRES_DB_PORT: int = Field(5432, env="POSTGRES_DB_PORT")
-    POSTGRES_DB_NAME: str = Field(..., env="POSTGRES_DB_NAME")
+    POSTGRES_HOST: str = Field(..., env="POSTGRES_HOST")
+    POSTGRES_PORT: int = Field(5432, env="POSTGRES_PORT")
+    POSTGRES_DB: str = Field(..., env="POSTGRES_DB")
     # DATABASE_URL: str = Field(None, env="DATABASE_URL")
     DB_POOL_SIZE: int = Field(10, env="DB_POOL_SIZE")
     DB_MAX_OVERFLOW: int = 20
@@ -47,9 +47,10 @@ class Settings(BaseSettings):
         It will not be loaded from or stored in the environment directly.
         """
         return (
-            f"postgresql+asyncpg://{self.POSTGRES_DB_USER}:"
-            f"{self.POSTGRES_PASSWORD}@{self.POSTGRES_DB_HOST}:"
-            f"{self.POSTGRES_DB_PORT}/{self.POSTGRES_DB_NAME}"
+            f"postgresql+asyncpg://{self.POSTGRES_USER}:"
+            f"{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:"
+            f"{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
+
 
 settings = Settings()
