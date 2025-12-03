@@ -20,7 +20,8 @@ ENV APP_PORT=8000
 WORKDIR /app
 
 # Copy installed deps from builder
-COPY --from=builder /root/.local /root/.local
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Add PATH
 ENV PATH=/root/.local/bin:$PATH
