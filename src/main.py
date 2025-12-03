@@ -35,6 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+print(f"Starting Lemo Backend with DATABASE_URL: {settings.DATABASE_URL}")
 # Include API routers
 app.include_router(api_router, prefix="/api/v1")
 
